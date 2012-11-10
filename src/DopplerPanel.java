@@ -7,6 +7,7 @@ import java.awt.Shape;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.math.BigDecimal;
 import java.text.AttributedString;
 
 import javax.swing.JPanel;
@@ -19,12 +20,12 @@ public class DopplerPanel extends JPanel {
 	private static final String frequencyObserverDescription = "Częstotliwość słyszalna";
 	private static final String frequencySourceDescription = "Częstotliwość emisji";
 	private static final Color green = new Color(60, 140, 40);
-	private static final String observedFrequencyDescription = "Częstotliwość obserwowana f(t)";
+	private static final String observedFrequencyDescription = "Częstotliwość obserwowana";
 	private static final String observerAngleDescription = "\u03B8";
 	private static final Color purple = new Color(75, 30, 140);
 	private static final long serialVersionUID = 1891140777059740472L;
 	private static final double temperature = 25.0;
-	private static final int timePointsCount = 100;
+	private int timePointsCount;
 	private static final Polygon vehicule = new Polygon(new int[] { 0, 2, 3, 2,
 			0 }, new int[] { -1, -1, 0, 1, 1 }, 5);
 	private static final String velocityDescription = "\u03BD";
@@ -49,19 +50,27 @@ public class DopplerPanel extends JPanel {
 	private int sceneHeight;
 	private int sceneLegendTextPaddingX = 25;
 	private double time;
-	private double timeMax;
 	private double[] timePoints;
 	private double velocityInitial;
 	private double velocitySoundWave;
 
-	public DopplerPanel(double observerLocation, double sourceFrequency,
-			double initialVelocity, double time, double timeMax) {
+	private double observerLocationMin = 1.0;
+	private double observerLocationMax = 40.0;
+	private double frequencySourceMin = 200.0;
+	private double frequencySourceMax = 1250.0;
+	private double velocityInitialMin = 10.0;
+	private double velocityInitialMax = 50.0;
+	private double timeMin = 0;
+	private double timeMax;
+	private double decimalDigits = 3.0;
+
+	public DopplerPanel() {
 		super();
-		this.velocityInitial = initialVelocity;
-		this.observerLocation = observerLocation;
-		this.frequencySource = sourceFrequency;
-		this.time = time;
-		this.timeMax = timeMax;
+		this.velocityInitial = velocityInitialMin;
+		this.observerLocation = observerLocationMin;
+		this.frequencySource = frequencySourceMin;
+		this.time = timeMin;
+		this.timeMax = roadDistance / this.velocityInitial;
 		this.velocitySoundWave = 332.0 * (1.0 + Math
 				.sqrt((temperature / 273.0)));
 		velocityRelativeDescription.addAttribute(TextAttribute.SUPERSCRIPT,
@@ -70,8 +79,9 @@ public class DopplerPanel extends JPanel {
 
 	// TODO poprawić
 	private int convertFrequencyForPlot(double frequency) {
-		return (int) (map(frequency, 0.0, frequencySource * 3.0, 0.0, scalePlot
-				* plotHeight));
+		double x = 0.35;
+		return (int) (map(frequency - frequencySource * (1.0 - x), 0.0,
+				frequencySource * (2.0 * x), 0.0, scalePlot * plotHeight));
 	}
 
 	private int convertTimeForPlot(double time) {
@@ -155,7 +165,7 @@ public class DopplerPanel extends JPanel {
 	private void drawPlot(Graphics2D g2d) {
 		preparePlotData();
 		g2d.scale(1, -1);
-		g2d.translate(0, -plotHeight / 2.0);
+		g2d.translate(0, -plotHeight);
 		g2d.setPaint(purple);
 		g2d.setStroke(new BasicStroke());
 		for (int x = 0; x < timePointsCount; x++) {
@@ -303,6 +313,7 @@ public class DopplerPanel extends JPanel {
 		sceneHeight = (int) ((getHeight() - legendHeight) * scaleScenePlot);
 		plotWithLegendHeight = getHeight() - sceneHeight - legendHeight;
 		plotHeight = plotWithLegendHeight - fontHeight;
+		timePointsCount = (int) (getWidth() * scalePlot);
 		drawBackground(main);
 		Graphics2D legend = (Graphics2D) main.create(0, 0, getWidth(),
 				legendHeight);
@@ -314,12 +325,18 @@ public class DopplerPanel extends JPanel {
 		scene.dispose();
 		Graphics2D plotWithLegend = (Graphics2D) main.create(0, legendHeight
 				+ sceneHeight, getWidth(), plotWithLegendHeight);
+		// plotWithLegend.setColor(Color.black);
+		// plotWithLegend.drawRect(0, 0, getWidth(), plotWithLegendHeight);
 		drawPlotLegend(plotWithLegend);
 		Graphics2D plot = (Graphics2D) plotWithLegend.create(
 				(int) (getWidth() * ((1.0 - scalePlot) / 2.0)),
-				(int) (plotHeight * ((1.0 - scalePlot) / 2.0)),
-				(int) (getWidth() * scalePlot),
-				(int) (plotWithLegendHeight * scalePlot));
+				(int) (fontHeight + plotHeight * ((1.0 - scalePlot) / 2.0)),
+				(int) (getWidth() * scalePlot), (int) (plotHeight * scalePlot));
+		// plot.drawRect(0, 0, (int) (getWidth() * scalePlot),
+		// (int) (plotWithLegendHeight * scalePlot));
+		// plot.setColor(Color.black);
+		// int y = (int) (plotHeight * 0.5);
+		// plot.drawLine(0, y, (int) (getWidth() * scalePlot), y);
 		drawPlot(plot);
 		plot.dispose();
 		plotWithLegend.dispose();
@@ -342,8 +359,9 @@ public class DopplerPanel extends JPanel {
 		}
 	}
 
-	public void setInitialVelocity(double initialVelocity) {
-		this.velocityInitial = initialVelocity;
+	public void setVelocityInitial(double velocityInitial) {
+		this.velocityInitial = velocityInitial;
+		this.timeMax = roadDistance / velocityInitial;
 		plotUpToDate = false;
 	}
 
@@ -352,7 +370,34 @@ public class DopplerPanel extends JPanel {
 		plotUpToDate = false;
 	}
 
-	public void setSourceFrequency(double sourceFrequency) {
+	private double roundDouble(double z) {
+		return new BigDecimal(z).setScale(3, BigDecimal.ROUND_HALF_UP)
+				.doubleValue();
+	}
+
+	public void setObserverLocationSlider(double observerLocation) {
+		setObserverLocation(roundDouble(map(observerLocation, 0,
+				getObserverLocationMaxSlider(), observerLocationMin,
+				observerLocationMax)));
+	}
+
+	public void setFrequencySourceSlider(double frequencySource) {
+		setFrequencySource(roundDouble(map(frequencySource, 0,
+				getFrequencySourceMaxSlider(), frequencySourceMin,
+				frequencySourceMax)));
+	}
+
+	public void setVelocityInitialSlider(double velocityInitial) {
+		setVelocityInitial(roundDouble(map(velocityInitial, 0,
+				getVelocityInitialMaxSlider(), velocityInitialMin,
+				velocityInitialMax)));
+	}
+
+	public void setTimeSlider(double time) {
+		setTime(roundDouble(map(time, 0, getTimeMaxSlider(), timeMin, timeMax)));
+	}
+
+	public void setFrequencySource(double sourceFrequency) {
 		this.frequencySource = sourceFrequency;
 	}
 
@@ -367,5 +412,21 @@ public class DopplerPanel extends JPanel {
 
 	public void invalidatePlot() {
 		this.plotUpToDate = false;
+	}
+
+	public int getFrequencySourceMaxSlider() {
+		return (int) (Math.pow(10, decimalDigits) * (frequencySourceMax - frequencySourceMin));
+	}
+
+	public int getObserverLocationMaxSlider() {
+		return (int) (Math.pow(10, decimalDigits) * (observerLocationMax - observerLocationMin));
+	}
+
+	public int getVelocityInitialMaxSlider() {
+		return (int) (Math.pow(10, decimalDigits) * (velocityInitialMax - velocityInitialMin));
+	}
+
+	public int getTimeMaxSlider() {
+		return (int) (Math.pow(10, decimalDigits) * (timeMax - timeMin));
 	}
 }
