@@ -53,6 +53,7 @@ public class DopplerPanel extends JPanel {
 	private double[] timePoints;
 	private double velocityInitial;
 	private double velocitySoundWave;
+	private int plotLegendHeight;
 
 	private double observerLocationMin = 1.0;
 	private double observerLocationMax = 40.0;
@@ -62,7 +63,8 @@ public class DopplerPanel extends JPanel {
 	private double velocityInitialMax = 50.0;
 	private double timeMin = 0;
 	private double timeMax;
-	private double decimalDigits = 3.0;
+	private static final int decimalDigits = 3;
+	private static final double percentSurrounding = 0.35;
 
 	public DopplerPanel() {
 		super();
@@ -77,15 +79,14 @@ public class DopplerPanel extends JPanel {
 				TextAttribute.SUPERSCRIPT_SUB, 1, 2);
 	}
 
-	// TODO poprawić
 	private int convertFrequencyForPlot(double frequency) {
-		double x = 0.35;
-		return (int) (map(frequency - frequencySource * (1.0 - x), 0.0,
-				frequencySource * (2.0 * x), 0.0, scalePlot * plotHeight));
+		return (int) (map(frequency - frequencySource
+				* (1.0 - percentSurrounding), 0.0, frequencySource
+				* (2.0 * percentSurrounding), 0.0, plotHeight));
 	}
 
 	private int convertTimeForPlot(double time) {
-		return (int) (map(time, 0.0, timeMax, 0.0, scalePlot * getWidth()));
+		return (int) (map(time, 0.0, timeMax, 0.0, getWidth()));
 	}
 
 	private void drawBackground(Graphics2D g2d) {
@@ -164,16 +165,23 @@ public class DopplerPanel extends JPanel {
 
 	private void drawPlot(Graphics2D g2d) {
 		preparePlotData();
+		g2d.translate(0, plotHeight);
 		g2d.scale(1, -1);
-		g2d.translate(0, -plotHeight);
+		AffineTransform at = new AffineTransform(g2d.getTransform());
+		at.translate(getWidth() * (1.0 - scalePlot) / 2.0, plotHeight
+				* (1.0 - scalePlot) / 2.0);
+		at.scale(scalePlot, scalePlot);
+		g2d.setTransform(at);
 		g2d.setPaint(purple);
 		g2d.setStroke(new BasicStroke());
 		for (int x = 0; x < timePointsCount; x++) {
 			g2d.drawLine(plotX[x], plotY[x], plotX[x + 1], plotY[x + 1]);
 		}
 		g2d.setStroke(new BasicStroke(2));
+//		g2d.setColor(Color.black);
 		int timeCurrent = convertTimeForPlot(time);
 		g2d.drawLine(timeCurrent, 0, timeCurrent, plotHeight);
+//		g2d.drawLine(0, plotHeight / 2, getWidth(), plotHeight / 2);
 	}
 
 	private void drawPlotLegend(Graphics2D g2d) {
@@ -312,7 +320,8 @@ public class DopplerPanel extends JPanel {
 		legendHeight = fontHeight * 3;
 		sceneHeight = (int) ((getHeight() - legendHeight) * scaleScenePlot);
 		plotWithLegendHeight = getHeight() - sceneHeight - legendHeight;
-		plotHeight = plotWithLegendHeight - fontHeight;
+		plotLegendHeight = fontHeight * 2;
+		plotHeight = plotWithLegendHeight - plotLegendHeight;
 		timePointsCount = (int) (getWidth() * scalePlot);
 		drawBackground(main);
 		Graphics2D legend = (Graphics2D) main.create(0, 0, getWidth(),
@@ -325,18 +334,9 @@ public class DopplerPanel extends JPanel {
 		scene.dispose();
 		Graphics2D plotWithLegend = (Graphics2D) main.create(0, legendHeight
 				+ sceneHeight, getWidth(), plotWithLegendHeight);
-		// plotWithLegend.setColor(Color.black);
-		// plotWithLegend.drawRect(0, 0, getWidth(), plotWithLegendHeight);
 		drawPlotLegend(plotWithLegend);
-		Graphics2D plot = (Graphics2D) plotWithLegend.create(
-				(int) (getWidth() * ((1.0 - scalePlot) / 2.0)),
-				(int) (fontHeight + plotHeight * ((1.0 - scalePlot) / 2.0)),
-				(int) (getWidth() * scalePlot), (int) (plotHeight * scalePlot));
-		// plot.drawRect(0, 0, (int) (getWidth() * scalePlot),
-		// (int) (plotWithLegendHeight * scalePlot));
-		// plot.setColor(Color.black);
-		// int y = (int) (plotHeight * 0.5);
-		// plot.drawLine(0, y, (int) (getWidth() * scalePlot), y);
+		Graphics2D plot = (Graphics2D) plotWithLegend.create(0,
+				plotLegendHeight, getWidth(), plotHeight);
 		drawPlot(plot);
 		plot.dispose();
 		plotWithLegend.dispose();
