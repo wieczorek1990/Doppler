@@ -18,15 +18,15 @@ public class DopplerApplication implements ChangeListener {
 
 	private JFrame frame;
 	private DopplerPanel dopplerPanel;
-	private JSlider slider;
-	private JSlider slider_1;
-	private JSlider slider_2;
-	private JSlider slider_3;
+	private ObserverLocationSlider slider;
+	private FrequencySourceSlider slider_1;
+	private VelocityInitialSlider slider_2;
+	private TimeSlider slider_3;
 
-	private double observerLocation;
-	private double sourceFrequency;
-	private double time;
-	private double initialVelocity;
+	private int observerLocation;
+	private int frequencySource;
+	private int time;
+	private int velocityInitial;
 
 	private DopplerPlayer dopplerPlayer;
 	private DopplerPlayer dopplerPlayer_1;
@@ -105,45 +105,54 @@ public class DopplerApplication implements ChangeListener {
 		JLabel lblCzas = new JLabel("Czas");
 		panel.add(lblCzas);
 
-		slider = new JSlider();
+		slider = new ObserverLocationSlider(dopplerPanel);
 		slider.addChangeListener(this);
 		slider.setMinimum(0);
-		slider.setMaximum(dopplerPanel.getObserverLocationMaxSlider());
+		slider.setMaximum(dopplerPanel
+				.getObserverLocationMaxForSlider());
 		slider.setValue(0);
 		panel.add(slider);
 
-		slider_1 = new JSlider();
+		slider_1 = new FrequencySourceSlider(dopplerPanel);
 		slider_1.addChangeListener(this);
 		slider_1.setMinimum(0);
-		slider_1.setMaximum(dopplerPanel.getFrequencySourceMaxSlider());
+		slider_1.setMaximum(dopplerPanel.getFrequencySourceMaxForSlider());
 		slider_1.setValue(0);
 		panel.add(slider_1);
 
-		slider_2 = new JSlider();
+		slider_2 = new VelocityInitialSlider(dopplerPanel);
 		slider_2.addChangeListener(this);
 		slider_2.setMinimum(0);
-		slider_2.setMaximum(dopplerPanel.getVelocityInitialMaxSlider());
+		slider_2.setMaximum(dopplerPanel.getVelocityInitialMaxForSlider());
 		slider_2.setValue(0);
 		panel.add(slider_2);
 
-		slider_3 = new JSlider();
+		slider_3 = new TimeSlider(dopplerPanel);
 		slider_3.addChangeListener(this);
 		slider_3.setMinimum(0);
-		slider_3.setMaximum(dopplerPanel.getTimeMaxSlider());
+		slider_3.setMaximum(dopplerPanel.getTimeMaxForSlider());
 		slider_3.setValue(0);
 		panel.add(slider_3);
 
-		dopplerPlayer = new DopplerPlayer(this);
+		dopplerPlayer = new DopplerPlayer(this, slider);
 		panel.add(dopplerPlayer);
+		
+		 dopplerPlayer_1 = new DopplerPlayer(this, slider_1);
+		 panel.add(dopplerPlayer_1);
+		
+		 dopplerPlayer_2 = new DopplerPlayer(this, slider_2);
+		 panel.add(dopplerPlayer_2);
+		
+		 dopplerPlayer_3 = new DopplerPlayer(this, slider_3);
+		 panel.add(dopplerPlayer_3);
 
-		dopplerPlayer_1 = new DopplerPlayer(this);
-		panel.add(dopplerPlayer_1);
-
-		dopplerPlayer_2 = new DopplerPlayer(this);
-		panel.add(dopplerPlayer_2);
-
-		dopplerPlayer_3 = new DopplerPlayer(this);
-		panel.add(dopplerPlayer_3);
+		dopplerPlayer.setValue(dopplerPanel
+				.getObserverLocationFromSlider(observerLocation));
+		dopplerPlayer_1.setValue(dopplerPanel
+				.getFrequencySourceFromSlider(frequencySource));
+		dopplerPlayer_2.setValue(dopplerPanel
+				.getVelocityInitialFromSlider(velocityInitial));
+		dopplerPlayer_3.setValue(dopplerPanel.getTimeFromSlider(time));
 
 		frame.getContentPane().add((JPanel) dopplerPanel, BorderLayout.CENTER);
 	}
@@ -151,26 +160,35 @@ public class DopplerApplication implements ChangeListener {
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		JSlider source = (JSlider) e.getSource();
-		if (!source.getValueIsAdjusting() && dopplerPanel != null) {
+		if (!source.getValueIsAdjusting() && dopplerPanel != null
+				&& dopplerPlayer != null && dopplerPlayer_1 != null
+				&& dopplerPlayer_2 != null && dopplerPlayer_3 != null) {
 			if (source == slider) {
-				observerLocation = (double) source.getValue();
-				dopplerPanel.setObserverLocationSlider(observerLocation);
+				observerLocation = (int) source.getValue();
+				dopplerPanel.setObserverLocationFromSlider(observerLocation);
 				dopplerPanel.repaint();
+				dopplerPlayer.setValue(dopplerPanel
+						.getObserverLocationFromSlider(observerLocation));
 			} else if (source == slider_1) {
-				sourceFrequency = (double) source.getValue();
-				dopplerPanel.setFrequencySourceSlider(sourceFrequency);
+				frequencySource = (int) source.getValue();
+				dopplerPanel.setFrequencySourceFromSlider(frequencySource);
 				dopplerPanel.repaint();
+				dopplerPlayer_1.setValue(dopplerPanel
+						.getFrequencySourceFromSlider(frequencySource));
 			} else if (source == slider_2) {
-				initialVelocity = (double) source.getValue();
-				dopplerPanel.setVelocityInitialSlider(initialVelocity);
+				velocityInitial = (int) source.getValue();
+				dopplerPanel.setVelocityInitialFromSlider(velocityInitial);
 				if (slider_3 != null) {
-					slider_3.setMaximum(dopplerPanel.getTimeMaxSlider());
+					slider_3.setMaximum(dopplerPanel.getTimeMaxForSlider());
 				}
 				dopplerPanel.repaint();
+				dopplerPlayer_2.setValue(dopplerPanel
+						.getVelocityInitialFromSlider(velocityInitial));
 			} else if (source == slider_3) {
-				time = (double) source.getValue();
-				dopplerPanel.setTimeSlider(time);
+				time = (int) source.getValue();
+				dopplerPanel.setTimeFromSlider(time);
 				dopplerPanel.repaint();
+				dopplerPlayer_3.setValue(dopplerPanel.getTimeFromSlider(time));
 			}
 		}
 	}

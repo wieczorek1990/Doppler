@@ -21,21 +21,31 @@ public final class DopplerPlayer extends JPanel {
 	private JButton button_3;
 	private JButton button_4;
 	private JButton button_5;
+	private IDopplerSlider slider;
 
 	public boolean playing = false;
 	public PlayType playType = PlayType.RIGHT;
 
 	private DopplerApplication dopplerApplication;
+	private double value;
+	private double step;
+	private double stepScaler = 1.0;
 
-	public DopplerPlayer(DopplerApplication dopplerApplication) {
+	public DopplerPlayer(DopplerApplication dopplerApplication, IDopplerSlider slider) {
 		this.dopplerApplication = dopplerApplication;
+		this.slider = slider;
 
 		textField = new JTextField();
 		textField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-
+					try {
+						value = Double.parseDouble(textField.getText());
+					} catch (NumberFormatException ex) {
+						;
+					}
+					DopplerPlayer.this.slider.setValueFromDouble(value);
 				}
 			}
 		});
@@ -128,5 +138,10 @@ public final class DopplerPlayer extends JPanel {
 		add(button_3);
 		add(button_4);
 		add(button_5);
+	}
+
+	public void setValue(double value) {
+		this.value = value;
+		textField.setText(Double.toString(value));
 	}
 }

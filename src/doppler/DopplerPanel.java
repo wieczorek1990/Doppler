@@ -41,14 +41,14 @@ public class DopplerPanel extends JPanel {
 	private double frequencySourceMax = 1250.0;
 	private double frequencySourceMin = 200.0;
 	private int legendHeight;
-	private int legendPaddingX = 15;
+	private static final int legendPaddingX = 15;
 	private double observerLocation;
 	private double observerLocationMax = 40.0;
 	private double observerLocationMin = 1.0;
+	private boolean plotDataUpToDate = false;
 	private int plotHeight;
 	private int plotLegendHeight;
-	private boolean plotDataUpToDate = false;
-	private int plotWithLegendHeight;
+	private int plotFromLegendHeight;
 	private int plotX[];
 	private int plotY[];
 	private double roadDistance = 200.0;
@@ -56,8 +56,7 @@ public class DopplerPanel extends JPanel {
 	private double scaleObjects = 0.8;
 	private double scalePlot = 0.75;
 	private int sceneHeight;
-
-	private int sceneLegendTextPaddingX = 25;
+	private static final int sceneLegendTextPaddingX = 25;
 	private double time;
 	private double timeMax;
 	private double timeMin = 0;
@@ -81,10 +80,20 @@ public class DopplerPanel extends JPanel {
 				TextAttribute.SUPERSCRIPT_SUB, 1, 2);
 	}
 
+	public int convertDoubleToSlider(double value, double inMin, double inMax,
+			int outMax) {
+		return (int) map(value, inMin, inMax, 0, outMax);
+	}
+
 	private int convertFrequencyForPlot(double frequency) {
 		return (int) (map(frequency - frequencySource
 				* (1.0 - percentSurrounding), 0.0, frequencySource
 				* (2.0 * percentSurrounding), 0.0, plotHeight));
+	}
+
+	public double convertSliderToDouble(int value, int inMax, double outMin,
+			double outMax) {
+		return roundDouble(map(value, 0, inMax, outMin, outMax));
 	}
 
 	private int convertTimeForPlot(double time) {
@@ -101,14 +110,15 @@ public class DopplerPanel extends JPanel {
 		g2d.setStroke(dashed);
 		g2d.setColor(purple);
 
-//		double period = 1.0 / frequencySource;
-//		for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent += period) {
-//			int x = getVehiculeCenterX();
-//			int y = getRoadY();
-//			double radius = velocitySoundWave * (time - timeCurrent);
-//			Ellipse2D circle = getCricle(x, y, radius);
-//			g2d.draw(circle);
-//		}
+		// double period = 1.0 / frequencySource;
+		// for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent +=
+		// period) {
+		// int x = getVehiculeCenterX();
+		// int y = getRoadY();
+		// double radius = velocitySoundWave * (time - timeCurrent);
+		// Ellipse2D circle = getCricle(x, y, radius);
+		// g2d.draw(circle);
+		// }
 	}
 
 	private void drawLegend(Graphics2D g2d) {
@@ -247,8 +257,12 @@ public class DopplerPanel extends JPanel {
 				* frequencySource;
 	}
 
-	public int getFrequencySourceMaxSlider() {
-		return (int) (Math.pow(10, decimalDigits) * (frequencySourceMax - frequencySourceMin));
+	public int getFrequencySourceMaxForSlider() {
+		return getMaxForSlider(frequencySourceMin, frequencySourceMax);
+	}
+
+	public int getMaxForSlider(double min, double max) {
+		return (int) (Math.pow(10, decimalDigits) * (max - min));
 	}
 
 	private double getObserverAngle() {
@@ -263,24 +277,20 @@ public class DopplerPanel extends JPanel {
 		return Math.toDegrees(Math.atan(observerLocation / Math.abs(x)));
 	}
 
-	public int getObserverLocationMaxSlider() {
-		return (int) (Math.pow(10, decimalDigits) * (observerLocationMax - observerLocationMin));
+	public int getObserverLocationMaxForSlider() {
+		return getMaxForSlider(observerLocationMin, observerLocationMax);
 	}
 
 	private int getObserverY() {
 		return (int) (getRoadY() + observerLocation);
 	}
 
-	public double getRoadDistance() {
-		return roadDistance;
-	}
-
 	private int getRoadY() {
 		return sceneHeight / 2;
 	}
 
-	public int getTimeMaxSlider() {
-		return (int) (Math.pow(10, decimalDigits) * (timeMax - timeMin));
+	public int getTimeMaxForSlider() {
+		return getMaxForSlider(timeMin, timeMax);
 	}
 
 	private int getVehiculeCenterX() {
@@ -299,8 +309,8 @@ public class DopplerPanel extends JPanel {
 		return at.createTransformedShape(vehicule);
 	}
 
-	public int getVelocityInitialMaxSlider() {
-		return (int) (Math.pow(10, decimalDigits) * (velocityInitialMax - velocityInitialMin));
+	public int getVelocityInitialMaxForSlider() {
+		return getMaxForSlider(velocityInitialMin, velocityInitialMax);
 	}
 
 	private double getVelocityRelative() {
@@ -325,7 +335,7 @@ public class DopplerPanel extends JPanel {
 		repaint();
 	}
 
-	public double map(double x, double inMin, double inMax, double outMin,
+	private double map(double x, double inMin, double inMax, double outMin,
 			double outMax) {
 		return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 	}
@@ -337,9 +347,9 @@ public class DopplerPanel extends JPanel {
 		int fontHeight = main.getFontMetrics().getHeight();
 		legendHeight = fontHeight * 4;
 		sceneHeight = (int) ((getHeight() - legendHeight) * scaleScenePlot);
-		plotWithLegendHeight = getHeight() - sceneHeight - legendHeight;
+		plotFromLegendHeight = getHeight() - sceneHeight - legendHeight;
 		plotLegendHeight = fontHeight * 2;
-		plotHeight = plotWithLegendHeight - plotLegendHeight;
+		plotHeight = plotFromLegendHeight - plotLegendHeight;
 		timePointsCount = (int) (getWidth() * scalePlot);
 		drawBackground(main);
 		Graphics2D legend = (Graphics2D) main.create(0, 0, getWidth(),
@@ -350,14 +360,14 @@ public class DopplerPanel extends JPanel {
 				getWidth(), sceneHeight);
 		drawScene(scene);
 		scene.dispose();
-		Graphics2D plotWithLegend = (Graphics2D) main.create(0, legendHeight
-				+ sceneHeight, getWidth(), plotWithLegendHeight);
-		drawPlotLegend(plotWithLegend);
-		Graphics2D plot = (Graphics2D) plotWithLegend.create(0,
+		Graphics2D plotFromLegend = (Graphics2D) main.create(0, legendHeight
+				+ sceneHeight, getWidth(), plotFromLegendHeight);
+		drawPlotLegend(plotFromLegend);
+		Graphics2D plot = (Graphics2D) plotFromLegend.create(0,
 				plotLegendHeight, getWidth(), plotHeight);
 		drawPlot(plot);
 		plot.dispose();
-		plotWithLegend.dispose();
+		plotFromLegend.dispose();
 		main.dispose();
 	}
 
@@ -387,10 +397,10 @@ public class DopplerPanel extends JPanel {
 		repaint();
 	}
 
-	public void setFrequencySourceSlider(double frequencySource) {
-		setFrequencySource(roundDouble(map(frequencySource, 0,
-				getFrequencySourceMaxSlider(), frequencySourceMin,
-				frequencySourceMax)));
+	public void setFrequencySourceFromSlider(int frequencySource) {
+		setFrequencySource(convertSliderToDouble(frequencySource,
+				getFrequencySourceMaxForSlider(), frequencySourceMin,
+				frequencySourceMax));
 	}
 
 	public void setObserverLocation(double observerLocation) {
@@ -398,10 +408,10 @@ public class DopplerPanel extends JPanel {
 		invalidatePlot();
 	}
 
-	public void setObserverLocationSlider(double observerLocation) {
-		setObserverLocation(roundDouble(map(observerLocation, 0,
-				getObserverLocationMaxSlider(), observerLocationMin,
-				observerLocationMax)));
+	public void setObserverLocationFromSlider(int observerLocation) {
+		setObserverLocation(convertSliderToDouble(observerLocation,
+				getObserverLocationMaxForSlider(), observerLocationMin,
+				observerLocationMax));
 	}
 
 	public void setTime(double time) {
@@ -409,13 +419,14 @@ public class DopplerPanel extends JPanel {
 		repaint();
 	}
 
+	public void setTimeFromSlider(int time) {
+		setTime(convertSliderToDouble(time, getTimeMaxForSlider(), timeMin,
+				timeMax));
+	}
+
 	public void setTimeMax(int timeMax) {
 		this.timeMax = timeMax;
 		invalidatePlot();
-	}
-
-	public void setTimeSlider(double time) {
-		setTime(roundDouble(map(time, 0, getTimeMaxSlider(), timeMin, timeMax)));
 	}
 
 	public void setVelocityInitial(double velocityInitial) {
@@ -424,9 +435,56 @@ public class DopplerPanel extends JPanel {
 		invalidatePlot();
 	}
 
-	public void setVelocityInitialSlider(double velocityInitial) {
-		setVelocityInitial(roundDouble(map(velocityInitial, 0,
-				getVelocityInitialMaxSlider(), velocityInitialMin,
-				velocityInitialMax)));
+	public void setVelocityInitialFromSlider(int velocityInitial) {
+		setVelocityInitial(convertSliderToDouble(velocityInitial,
+				getVelocityInitialMaxForSlider(), velocityInitialMin,
+				velocityInitialMax));
+	}
+
+	public double getObserverLocationFromSlider(int observerLocation) {
+		return convertSliderToDouble(observerLocation,
+				getObserverLocationMaxForSlider(), observerLocationMin,
+				observerLocationMax);
+	}
+
+	public double getFrequencySourceFromSlider(int frequencySource) {
+		return convertSliderToDouble(frequencySource,
+				getSourceFrequencyMaxForSlider(), frequencySourceMin,
+				frequencySourceMax);
+	}
+
+	private int getSourceFrequencyMaxForSlider() {
+		return getMaxForSlider(frequencySourceMin, frequencySourceMax);
+	}
+
+	public double getVelocityInitialFromSlider(int velocityInitial) {
+		return convertSliderToDouble(velocityInitial,
+				getVelocityInitialMaxForSlider(), velocityInitialMin,
+				velocityInitialMax);
+	}
+
+	public double getTimeFromSlider(int time) {
+		return convertSliderToDouble(time, getTimeMaxForSlider(), timeMin,
+				timeMax);
+	}
+
+	public int getObserverLocationFromDouble(double observerLocation) {
+		return convertDoubleToSlider(observerLocation, observerLocationMin,
+				observerLocationMax, getObserverLocationMaxForSlider());
+	}
+
+	public int getVelocityInitialFromDouble(double velocityInitial) {
+		return convertDoubleToSlider(velocityInitial, velocityInitialMin,
+				velocityInitialMax, getVelocityInitialMaxForSlider());
+	}
+
+	public int getFrequencySourceFromDouble(double frequencySource) {
+		return convertDoubleToSlider(frequencySource, frequencySourceMin,
+				frequencySourceMax, getFrequencySourceMaxForSlider());
+	}
+
+	public int getTimeFromDouble(double time) {
+		return convertDoubleToSlider(time, timeMin, timeMax,
+				getTimeMaxForSlider());
 	}
 }
