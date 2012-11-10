@@ -11,4 +11,9 @@ public class FrequencySourceSlider extends DopplerSlider {
 	public void setValueFromDouble(double frequencySource) {
 		setValue(dopplerPanel.getFrequencySourceFromDouble(frequencySource));
 	}
+
+	@Override
+	public void setMaximum() {
+		setMaximum(dopplerPanel.getFrequencySourceMaxForSlider());
+	}
 }

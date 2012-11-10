@@ -108,43 +108,42 @@ public class DopplerApplication implements ChangeListener {
 		slider = new ObserverLocationSlider(dopplerPanel);
 		slider.addChangeListener(this);
 		slider.setMinimum(0);
-		slider.setMaximum(dopplerPanel
-				.getObserverLocationMaxForSlider());
+		slider.setMaximum();
 		slider.setValue(0);
 		panel.add(slider);
 
 		slider_1 = new FrequencySourceSlider(dopplerPanel);
 		slider_1.addChangeListener(this);
 		slider_1.setMinimum(0);
-		slider_1.setMaximum(dopplerPanel.getFrequencySourceMaxForSlider());
+		slider_1.setMaximum();
 		slider_1.setValue(0);
 		panel.add(slider_1);
 
 		slider_2 = new VelocityInitialSlider(dopplerPanel);
 		slider_2.addChangeListener(this);
 		slider_2.setMinimum(0);
-		slider_2.setMaximum(dopplerPanel.getVelocityInitialMaxForSlider());
+		slider_2.setMaximum();
 		slider_2.setValue(0);
 		panel.add(slider_2);
 
 		slider_3 = new TimeSlider(dopplerPanel);
 		slider_3.addChangeListener(this);
 		slider_3.setMinimum(0);
-		slider_3.setMaximum(dopplerPanel.getTimeMaxForSlider());
+		slider_3.setMaximum();
 		slider_3.setValue(0);
 		panel.add(slider_3);
 
 		dopplerPlayer = new DopplerPlayer(this, slider);
 		panel.add(dopplerPlayer);
-		
-		 dopplerPlayer_1 = new DopplerPlayer(this, slider_1);
-		 panel.add(dopplerPlayer_1);
-		
-		 dopplerPlayer_2 = new DopplerPlayer(this, slider_2);
-		 panel.add(dopplerPlayer_2);
-		
-		 dopplerPlayer_3 = new DopplerPlayer(this, slider_3);
-		 panel.add(dopplerPlayer_3);
+
+		dopplerPlayer_1 = new DopplerPlayer(this, slider_1);
+		panel.add(dopplerPlayer_1);
+
+		dopplerPlayer_2 = new DopplerPlayer(this, slider_2);
+		panel.add(dopplerPlayer_2);
+
+		dopplerPlayer_3 = new DopplerPlayer(this, slider_3);
+		panel.add(dopplerPlayer_3);
 
 		dopplerPlayer.setValue(dopplerPanel
 				.getObserverLocationFromSlider(observerLocation));
@@ -178,9 +177,7 @@ public class DopplerApplication implements ChangeListener {
 			} else if (source == slider_2) {
 				velocityInitial = (int) source.getValue();
 				dopplerPanel.setVelocityInitialFromSlider(velocityInitial);
-				if (slider_3 != null) {
-					slider_3.setMaximum(dopplerPanel.getTimeMaxForSlider());
-				}
+				slider_3.setMaximum();
 				dopplerPanel.repaint();
 				dopplerPlayer_2.setValue(dopplerPanel
 						.getVelocityInitialFromSlider(velocityInitial));

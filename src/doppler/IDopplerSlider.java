@@ -1,5 +1,6 @@
 package doppler;
 
 interface IDopplerSlider {
-	public abstract void setValueFromDouble(double value);
+	public void setValueFromDouble(double value);
+	public void setMaximum();
 }

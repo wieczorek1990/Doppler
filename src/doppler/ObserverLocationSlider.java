@@ -11,4 +11,9 @@ public class ObserverLocationSlider extends DopplerSlider {
 	public void setValueFromDouble(double observerLocation) {
 		setValue(dopplerPanel.getObserverLocationFromDouble(observerLocation));
 	}
+
+	@Override
+	public void setMaximum() {
+		setMaximum(dopplerPanel.getObserverLocationMaxForSlider());
+	}
 }
