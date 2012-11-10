@@ -5,6 +5,9 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import java.awt.GridLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+
 import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -19,7 +22,6 @@ public class DopplerApplication implements ChangeListener {
 	private JSlider slider_2;
 	private JSlider slider_3;
 
-	// TODO playerThreads
 	private double observerLocation;
 	private double sourceFrequency;
 	private double time;
@@ -57,6 +59,26 @@ public class DopplerApplication implements ChangeListener {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				dopplerPanel.invalidatePlot();
+				dopplerPanel.repaint();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+			}
+		});
 
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel, BorderLayout.NORTH);
@@ -121,10 +143,13 @@ public class DopplerApplication implements ChangeListener {
 				dopplerPanel.repaint();
 			} else if (source == slider_2) {
 				initialVelocity = (double) source.getValue();
-				dopplerPanel.setInitialVelocity(initialVelocity);
-				int timeMax = (int) (dopplerPanel.getDistance() / initialVelocity);
-				dopplerPanel.setTimeMax(timeMax);
+				int oldTimeMax = slider_3.getMaximum();
+				int oldValue = slider_3.getValue();
+				int timeMax = (int) (dopplerPanel.getRoadDistance() / initialVelocity);
 				slider_3.setMaximum(timeMax);
+				slider_3.setValue(oldValue * timeMax / oldTimeMax);
+				dopplerPanel.setInitialVelocity(initialVelocity);
+				dopplerPanel.setTimeMax(timeMax);
 				dopplerPanel.repaint();
 			} else if (source == slider_3) {
 				time = (double) source.getValue();

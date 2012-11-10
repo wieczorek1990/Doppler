@@ -12,7 +12,8 @@ import java.text.AttributedString;
 import javax.swing.JPanel;
 
 public class DopplerPanel extends JPanel {
-	private static final BasicStroke dashed = new BasicStroke(3.0f,
+	private static final double scaleScenePlot = 0.4;
+	private static final BasicStroke dashed = new BasicStroke(2.0f,
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f,
 			new float[] { 10.0f }, 0.0f);
 	private static final String frequencyObserverDescription = "Częstotliwość słyszalna";
@@ -22,6 +23,7 @@ public class DopplerPanel extends JPanel {
 	private static final String observerAngleDescription = "\u03B8";
 	private static final Color purple = new Color(75, 30, 140);
 	private static final long serialVersionUID = 1891140777059740472L;
+	private static final double temperature = 25.0;
 	private static final int timePointsCount = 100;
 	private static final Polygon vehicule = new Polygon(new int[] { 0, 2, 3, 2,
 			0 }, new int[] { -1, -1, 0, 1, 1 }, 5);
@@ -43,17 +45,14 @@ public class DopplerPanel extends JPanel {
 	private double roadDistance = 200.0;
 	private int roadWidth = 30;
 	private double scaleObjects = 0.8;
-	private double scalePlot = 0.5;
+	private double scalePlot = 0.75;
 	private int sceneHeight;
 	private int sceneLegendTextPaddingX = 25;
-	/**
-	 * At 15 deg. Celsius
-	 */
-	private double soundWaveSpeed = 340.2;
 	private double time;
 	private double timeMax;
 	private double[] timePoints;
 	private double velocityInitial;
+	private double velocitySoundWave;
 
 	public DopplerPanel(double observerLocation, double sourceFrequency,
 			double initialVelocity, double time, double timeMax) {
@@ -63,24 +62,27 @@ public class DopplerPanel extends JPanel {
 		this.frequencySource = sourceFrequency;
 		this.time = time;
 		this.timeMax = timeMax;
+		this.velocitySoundWave = 332.0 * (1.0 + Math
+				.sqrt((temperature / 273.0)));
 		velocityRelativeDescription.addAttribute(TextAttribute.SUPERSCRIPT,
 				TextAttribute.SUPERSCRIPT_SUB, 1, 2);
 	}
 
-	private int convertFrequencyForPlot(double f) {
-		return (int) (scalePlot * (map(f, 0.0, frequencySource * 2.0, 0.0,
-				plotWithLegendHeight)));
+	// TODO poprawić
+	private int convertFrequencyForPlot(double frequency) {
+		return (int) (map(frequency, 0.0, frequencySource * 3.0, 0.0, scalePlot
+				* plotHeight));
 	}
 
-	private int convertTimeForPlot(double c) {
-		return (int) (scalePlot * map(c, 0.0, timeMax, 0.0, getWidth()));
+	private int convertTimeForPlot(double time) {
+		return (int) (map(time, 0.0, timeMax, 0.0, scalePlot * getWidth()));
 	}
 
 	private void drawBackground(Graphics2D g2d) {
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
-	
+
 	// TODO generacja okręgów częstotliwości
 	private void drawCircles(Graphics2D g2d) {
 		g2d.setStroke(dashed);
@@ -161,7 +163,7 @@ public class DopplerPanel extends JPanel {
 		}
 		g2d.setStroke(new BasicStroke(2));
 		int timeCurrent = convertTimeForPlot(time);
-		g2d.drawLine(timeCurrent, 0, timeCurrent, plotWithLegendHeight);
+		g2d.drawLine(timeCurrent, 0, timeCurrent, plotHeight);
 	}
 
 	private void drawPlotLegend(Graphics2D g2d) {
@@ -182,7 +184,7 @@ public class DopplerPanel extends JPanel {
 				/ 2);
 		g2d.drawLine(0, roadY + roadWidth / 2, getWidth(), roadY + roadWidth
 				/ 2);
-		g2d.setStroke(new BasicStroke(6));
+		g2d.setStroke(new BasicStroke(4));
 		g2d.drawLine(0, roadY, getWidth(), roadY);
 	}
 
@@ -214,32 +216,40 @@ public class DopplerPanel extends JPanel {
 				radius * 2);
 	}
 
-	public double getDistance() {
-		return roadDistance;
-	}
-
 	private double getFrequencyObserver() {
 		return getFrequencyObserver(time);
 	}
 
-	// TODO poprawić wzór
 	private double getFrequencyObserver(double time) {
-		return (1.0 - (velocityInitial - getVelocityRelative(time))
-				/ soundWaveSpeed)
+		double sign;
+		if (getXPosition(time) < 0.0) {
+			sign = -1.0;
+		} else {
+			sign = 1.0;
+		}
+		return (velocitySoundWave / (velocitySoundWave + sign
+				* getVelocityRelative(time)))
 				* frequencySource;
 	}
 
 	private double getObserverAngle() {
-		return getObserverAngle(observerLocation, time);
+		return getObserverAngle(time);
 	}
 
-	private double getObserverAngle(double observerLocation, double time) {
-		return Math.toDegrees(Math.PI / 2
-				- Math.atan(Math.abs(getXPosition()) / observerLocation));
+	private double getObserverAngle(double time) {
+		double x = getXPosition(time);
+		if (Math.abs(x) < 0.5) {
+			x = 0.5;
+		}
+		return Math.toDegrees(Math.atan(observerLocation / Math.abs(x)));
 	}
 
 	private int getObserverY() {
 		return (int) (getRoadY() + observerLocation);
+	}
+
+	public double getRoadDistance() {
+		return roadDistance;
 	}
 
 	private int getRoadY() {
@@ -247,7 +257,7 @@ public class DopplerPanel extends JPanel {
 	}
 
 	private int getVehiculeCenterX() {
-		return (int) (scaleObjects * roadWidth / 2) + getVehiculePositionX();
+		return (int) (scaleObjects * roadWidth / 2.0) + getVehiculePositionX();
 	}
 
 	private int getVehiculePositionX() {
@@ -255,7 +265,7 @@ public class DopplerPanel extends JPanel {
 	}
 
 	private Shape getVehiculeToDraw() {
-		double vehiculeSize = scaleObjects * roadWidth / 2;
+		double vehiculeSize = scaleObjects * roadWidth / 2.0;
 		AffineTransform at = new AffineTransform();
 		at.translate(getVehiculePositionX(), getRoadY());
 		at.scale(vehiculeSize, vehiculeSize);
@@ -268,16 +278,15 @@ public class DopplerPanel extends JPanel {
 
 	private double getVelocityRelative(double time) {
 		return velocityInitial
-				* Math.cos(Math.toRadians(getObserverAngle(observerLocation,
-						time)));
+				* Math.cos(Math.toRadians(getObserverAngle(time)));
 	}
 
 	private double getXPosition() {
-		return getXPosition(velocityInitial, time);
+		return getXPosition(time);
 	}
 
-	private double getXPosition(double velocityInitial, double time) {
-		return velocityInitial * time - 100.0;
+	private double getXPosition(double time) {
+		return velocityInitial * time - roadDistance / 2.0;
 	}
 
 	public double map(double x, double inMin, double inMax, double outMin,
@@ -291,7 +300,7 @@ public class DopplerPanel extends JPanel {
 		Graphics2D main = (Graphics2D) g;
 		int fontHeight = main.getFontMetrics().getHeight();
 		legendHeight = fontHeight * 3;
-		sceneHeight = (int) ((getHeight() - legendHeight) * 0.4);
+		sceneHeight = (int) ((getHeight() - legendHeight) * scaleScenePlot);
 		plotWithLegendHeight = getHeight() - sceneHeight - legendHeight;
 		plotHeight = plotWithLegendHeight - fontHeight;
 		drawBackground(main);
@@ -306,8 +315,9 @@ public class DopplerPanel extends JPanel {
 		Graphics2D plotWithLegend = (Graphics2D) main.create(0, legendHeight
 				+ sceneHeight, getWidth(), plotWithLegendHeight);
 		drawPlotLegend(plotWithLegend);
-		Graphics2D plot = (Graphics2D) plotWithLegend.create((int) (getWidth()
-				* scalePlot / 2.0), (int) (plotHeight * scalePlot / 2.0),
+		Graphics2D plot = (Graphics2D) plotWithLegend.create(
+				(int) (getWidth() * ((1.0 - scalePlot) / 2.0)),
+				(int) (plotHeight * ((1.0 - scalePlot) / 2.0)),
 				(int) (getWidth() * scalePlot),
 				(int) (plotWithLegendHeight * scalePlot));
 		drawPlot(plot);
@@ -324,7 +334,7 @@ public class DopplerPanel extends JPanel {
 			plotY = new int[timePointsCount + 1];
 			for (int x = 0; x < timePointsCount + 1; x++) {
 				timePoints[x] = (double) x * timeMax / (double) timePointsCount;
-				frequencyObservedPoints[x] = getFrequencyObserver(time);
+				frequencyObservedPoints[x] = getFrequencyObserver(timePoints[x]);
 				plotX[x] = convertTimeForPlot(timePoints[x]);
 				plotY[x] = convertFrequencyForPlot(frequencyObservedPoints[x]);
 			}
@@ -344,16 +354,18 @@ public class DopplerPanel extends JPanel {
 
 	public void setSourceFrequency(double sourceFrequency) {
 		this.frequencySource = sourceFrequency;
-		plotUpToDate = false;
 	}
 
 	public void setTime(double time) {
 		this.time = time;
-		plotUpToDate = false;
 	}
 
 	public void setTimeMax(int timeMax) {
 		this.timeMax = timeMax;
 		plotUpToDate = false;
+	}
+
+	public void invalidatePlot() {
+		this.plotUpToDate = false;
 	}
 }
