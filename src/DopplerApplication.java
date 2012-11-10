@@ -70,7 +70,6 @@ public class DopplerApplication implements ChangeListener {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				dopplerPanel.invalidatePlot();
-				dopplerPanel.repaint();
 			}
 
 			@Override
@@ -136,22 +135,18 @@ public class DopplerApplication implements ChangeListener {
 			if (source == slider) {
 				observerLocation = (double) source.getValue();
 				dopplerPanel.setObserverLocationSlider(observerLocation);
-				dopplerPanel.repaint();
 			} else if (source == slider_1) {
 				sourceFrequency = (double) source.getValue();
 				dopplerPanel.setFrequencySourceSlider(sourceFrequency);
-				dopplerPanel.repaint();
 			} else if (source == slider_2) {
 				initialVelocity = (double) source.getValue();
 				dopplerPanel.setVelocityInitialSlider(initialVelocity);
 				if (slider_3 != null) {
 					slider_3.setMaximum(dopplerPanel.getTimeMaxSlider());
 				}
-				dopplerPanel.repaint();
 			} else if (source == slider_3) {
 				time = (double) source.getValue();
 				dopplerPanel.setTimeSlider(time);
-				dopplerPanel.repaint();
 			}
 		}
 	}
