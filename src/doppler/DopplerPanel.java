@@ -1,3 +1,5 @@
+package doppler;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -178,10 +180,10 @@ public class DopplerPanel extends JPanel {
 			g2d.drawLine(plotX[x], plotY[x], plotX[x + 1], plotY[x + 1]);
 		}
 		g2d.setStroke(new BasicStroke(2));
-//		g2d.setColor(Color.black);
+		// g2d.setColor(Color.black);
 		int timeCurrent = convertTimeForPlot(time);
 		g2d.drawLine(timeCurrent, 0, timeCurrent, plotHeight);
-//		g2d.drawLine(0, plotHeight / 2, getWidth(), plotHeight / 2);
+		// g2d.drawLine(0, plotHeight / 2, getWidth(), plotHeight / 2);
 	}
 
 	private void drawPlotLegend(Graphics2D g2d) {

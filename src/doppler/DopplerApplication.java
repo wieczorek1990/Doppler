@@ -1,16 +1,18 @@
-import java.awt.EventQueue;
+package doppler;
 
-import javax.swing.JFrame;
 import java.awt.BorderLayout;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.event.ChangeListener;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 // TODO player
 public class DopplerApplication implements ChangeListener {
@@ -26,6 +28,11 @@ public class DopplerApplication implements ChangeListener {
 	private double sourceFrequency;
 	private double time;
 	private double initialVelocity;
+
+	private DopplerPlayer dopplerPlayer;
+	private DopplerPlayer dopplerPlayer_1;
+	private DopplerPlayer dopplerPlayer_2;
+	private DopplerPlayer dopplerPlayer_3;
 
 	/**
 	 * Launch the application.
@@ -58,7 +65,8 @@ public class DopplerApplication implements ChangeListener {
 		dopplerPanel = new DopplerPanel();
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setMinimumSize(new Dimension(800, 0));
+		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		frame.addComponentListener(new ComponentListener() {
@@ -83,6 +91,7 @@ public class DopplerApplication implements ChangeListener {
 
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel, BorderLayout.NORTH);
+
 		panel.setLayout(new GridLayout(0, 4, 0, 0));
 
 		JLabel lblLokalizacjaObserwatora = new JLabel("Lokalizacja obserwatora");
@@ -125,6 +134,18 @@ public class DopplerApplication implements ChangeListener {
 		slider_3.setValue(0);
 		panel.add(slider_3);
 
+		dopplerPlayer = new DopplerPlayer(this);
+		panel.add(dopplerPlayer);
+
+		dopplerPlayer_1 = new DopplerPlayer(this);
+		panel.add(dopplerPlayer_1);
+
+		dopplerPlayer_2 = new DopplerPlayer(this);
+		panel.add(dopplerPlayer_2);
+
+		dopplerPlayer_3 = new DopplerPlayer(this);
+		panel.add(dopplerPlayer_3);
+
 		frame.getContentPane().add((JPanel) dopplerPanel, BorderLayout.CENTER);
 	}
 
@@ -135,18 +156,22 @@ public class DopplerApplication implements ChangeListener {
 			if (source == slider) {
 				observerLocation = (double) source.getValue();
 				dopplerPanel.setObserverLocationSlider(observerLocation);
+				dopplerPanel.repaint();
 			} else if (source == slider_1) {
 				sourceFrequency = (double) source.getValue();
 				dopplerPanel.setFrequencySourceSlider(sourceFrequency);
+				dopplerPanel.repaint();
 			} else if (source == slider_2) {
 				initialVelocity = (double) source.getValue();
 				dopplerPanel.setVelocityInitialSlider(initialVelocity);
 				if (slider_3 != null) {
 					slider_3.setMaximum(dopplerPanel.getTimeMaxSlider());
 				}
+				dopplerPanel.repaint();
 			} else if (source == slider_3) {
 				time = (double) source.getValue();
 				dopplerPanel.setTimeSlider(time);
+				dopplerPanel.repaint();
 			}
 		}
 	}
