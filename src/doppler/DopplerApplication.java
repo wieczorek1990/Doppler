@@ -14,7 +14,6 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-// TODO player
 public class DopplerApplication implements ChangeListener {
 
 	private JFrame frame;

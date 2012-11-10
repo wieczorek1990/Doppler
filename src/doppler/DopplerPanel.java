@@ -101,19 +101,14 @@ public class DopplerPanel extends JPanel {
 		g2d.setStroke(dashed);
 		g2d.setColor(purple);
 
-		// double period = 1.0 / frequencySource;
-		// for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent +=
-		// period) {
-		//
-		// }
-
-		// int x = getVehiculeCenterX();
-		// int y = getRoadY();
-		// int radius;
-		// radius = 10;
-		// Ellipse2D circle = getCricle(x, y, radius);
-		// g2d.setColor(purple);
-		// g2d.draw(circle);
+//		double period = 1.0 / frequencySource;
+//		for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent += period) {
+//			int x = getVehiculeCenterX();
+//			int y = getRoadY();
+//			double radius = velocitySoundWave * (time - timeCurrent);
+//			Ellipse2D circle = getCricle(x, y, radius);
+//			g2d.draw(circle);
+//		}
 	}
 
 	private void drawLegend(Graphics2D g2d) {
@@ -340,7 +335,7 @@ public class DopplerPanel extends JPanel {
 		super.paintComponent(g);
 		Graphics2D main = (Graphics2D) g;
 		int fontHeight = main.getFontMetrics().getHeight();
-		legendHeight = fontHeight * 3;
+		legendHeight = fontHeight * 4;
 		sceneHeight = (int) ((getHeight() - legendHeight) * scaleScenePlot);
 		plotWithLegendHeight = getHeight() - sceneHeight - legendHeight;
 		plotLegendHeight = fontHeight * 2;
