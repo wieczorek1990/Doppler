@@ -6,10 +6,6 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;

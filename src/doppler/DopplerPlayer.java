@@ -25,19 +25,22 @@ public final class DopplerPlayer extends JPanel {
 	private JButton button_4;
 	private JButton button_5;
 	private DopplerSlider slider;
+	private Thread playerThread;
 
 	public boolean playing = false;
 	public Direction direction = Direction.FORWARD;
 	public PlayType playType = PlayType.RIGHT;
+	public Position position = Position.LEFT_END;
 	private double value;
 	private int step;
 	private double stepScaler = 1.0;
 
-	private static final double stepPercentOfMaximum = 0.1;
+	private static final double stepPercentOfMaximum = 0.02;
 	private static final double stepScaleDown = 0.1;
 	private static final double stepScaleUp = 0.1;
 	private static final double stepScalerMin = 0.1;
 	private static final double stepScalerMax = 2.0;
+	private static final long sleepMillis = 100;
 
 	private NumberFormat numberFormat = NumberFormat.getInstance(new Locale(
 			"pl", "PL"));
@@ -68,7 +71,7 @@ public final class DopplerPlayer extends JPanel {
 		button = new JButton("");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				movePosition(Direction.BACKWARD);
+				nextPosition(Direction.BACKWARD);
 			}
 		});
 		button.setIcon(new ImageIcon(DopplerApplication.class
@@ -83,11 +86,12 @@ public final class DopplerPlayer extends JPanel {
 				if (playing) {
 					button_1.setIcon(new ImageIcon(DopplerApplication.class
 							.getResource("/res/pause.png")));
+					play();
 				} else {
 					button_1.setIcon(new ImageIcon(DopplerApplication.class
 							.getResource("/res/play.png")));
+					pause();
 				}
-				play();
 			}
 		});
 		button_1.setIcon(new ImageIcon(DopplerApplication.class
@@ -98,7 +102,7 @@ public final class DopplerPlayer extends JPanel {
 		button_2 = new JButton("");
 		button_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				movePosition(Direction.FORWARD);
+				nextPosition(Direction.FORWARD);
 			}
 		});
 		button_2.setIcon(new ImageIcon(DopplerApplication.class
@@ -149,9 +153,11 @@ public final class DopplerPlayer extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				playType = playType.next();
 				if (playType == PlayType.LEFT) {
+					direction = Direction.BACKWARD;
 					button_5.setIcon(new ImageIcon(DopplerApplication.class
 							.getResource("/res/left.png")));
 				} else if (playType == PlayType.RIGHT) {
+					direction = Direction.FORWARD;
 					button_5.setIcon(new ImageIcon(DopplerApplication.class
 							.getResource("/res/right.png")));
 				} else if (playType == PlayType.LEFT_RIGHT) {
@@ -183,7 +189,7 @@ public final class DopplerPlayer extends JPanel {
 		textField.setText(DopplerExperimentPanel.formatDouble(value));
 	}
 
-	private void movePosition(Direction direction) {
+	private void nextPosition(Direction direction) {
 		int value = slider.getValue();
 		if (direction == Direction.FORWARD) {
 			value += step;
@@ -192,14 +198,51 @@ public final class DopplerPlayer extends JPanel {
 		}
 		if (value < 0) {
 			value = 0;
+			position = Position.LEFT_END;
 		} else if (value > slider.getMaximum()) {
 			value = slider.getMaximum();
+			position = Position.RIGHT_END;
+		} else {
+			position = Position.MIDDLE;
 		}
 		slider.setValue(value);
 	}
 
-	// TODO
 	private void play() {
+		playerThread = new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						nextPosition(direction);
+						switch (playType) {
+						case RIGHT:
+							if (position == Position.RIGHT_END) {
+								slider.setValue(0);
+							}
+							break;
+						case LEFT:
+							if (position == Position.LEFT_END) {
+								slider.setValue(slider.getMaximum());
+							}
+							break;
+						case LEFT_RIGHT:
+							if (position == Position.LEFT_END
+									|| position == Position.RIGHT_END) {
+								direction = direction.next();
+							}
+							break;
+						}
+						sleep(sleepMillis);
+					} catch (InterruptedException e) {
+						return;
+					}
+				}
+			}
+		};
+		playerThread.start();
+	}
 
+	private void pause() {
+		playerThread.interrupt();
 	}
 }
