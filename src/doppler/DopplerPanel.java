@@ -105,7 +105,7 @@ public class DopplerPanel extends JPanel {
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
 
-	// TODO generacja okręgów częstotliwości
+	// TODO
 	private void drawCircles(Graphics2D g2d) {
 		g2d.setStroke(dashed);
 		g2d.setColor(purple);

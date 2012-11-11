@@ -21,19 +21,24 @@ public final class DopplerPlayer extends JPanel {
 	private JButton button_3;
 	private JButton button_4;
 	private JButton button_5;
-	private IDopplerSlider slider;
+	private DopplerSlider slider;
 
 	public boolean playing = false;
 	public PlayType playType = PlayType.RIGHT;
 
-	private DopplerApplication dopplerApplication;
 	private double value;
-	private double step;
+	private int step;
 	private double stepScaler = 1.0;
+	private static final double stepPercentOfMaximum = 0.1;
+	private static final double stepScaleDown = 0.05;
+	private static final double stepScaleUp = 0.1;
+	private static final double stepScalerMin = 0.1;
+	private static final double stepScalerMax = 2.0;
 
-	public DopplerPlayer(DopplerApplication dopplerApplication, IDopplerSlider slider) {
-		this.dopplerApplication = dopplerApplication;
+	public DopplerPlayer(final DopplerSlider slider) {
 		this.slider = slider;
+
+		calculateStep();
 
 		textField = new JTextField();
 		textField.addKeyListener(new KeyAdapter() {
@@ -45,7 +50,7 @@ public final class DopplerPlayer extends JPanel {
 					} catch (NumberFormatException ex) {
 						;
 					}
-					DopplerPlayer.this.slider.setValueFromDouble(value);
+					slider.setValueFromDouble(value);
 				}
 			}
 		});
@@ -54,6 +59,7 @@ public final class DopplerPlayer extends JPanel {
 		button = new JButton("");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				movePosition(Direction.BACKWARD);
 			}
 		});
 		button.setIcon(new ImageIcon(DopplerApplication.class
@@ -72,6 +78,7 @@ public final class DopplerPlayer extends JPanel {
 					button_1.setIcon(new ImageIcon(DopplerApplication.class
 							.getResource("/res/play.png")));
 				}
+				play();
 			}
 		});
 		button_1.setIcon(new ImageIcon(DopplerApplication.class
@@ -82,7 +89,7 @@ public final class DopplerPlayer extends JPanel {
 		button_2 = new JButton("");
 		button_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				movePosition(Direction.FORWARD);
 			}
 		});
 		button_2.setIcon(new ImageIcon(DopplerApplication.class
@@ -93,6 +100,17 @@ public final class DopplerPlayer extends JPanel {
 		button_3 = new JButton("");
 		button_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (stepScaler <= 1.0) {
+					stepScaler -= stepScaleDown;
+				} else {
+					stepScaler -= stepScaleUp;
+				}
+				if (stepScaler < stepScalerMin) {
+					stepScaler = stepScalerMin;
+				}
+				// System.out.println(stepScaler);
+				calculateStep();
+				// System.out.println(step);
 			}
 		});
 		button_3.setIcon(new ImageIcon(DopplerApplication.class
@@ -103,6 +121,17 @@ public final class DopplerPlayer extends JPanel {
 		button_4 = new JButton("");
 		button_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (stepScaler < 1.0) {
+					stepScaler += stepScaleDown;
+				} else {
+					stepScaler += stepScaleUp;
+				}
+				if (stepScaler > stepScalerMax) {
+					stepScaler = stepScalerMax;
+				}
+				// System.out.println(stepScaler);
+				calculateStep();
+				// System.out.println(step);
 			}
 		});
 		button_4.setIcon(new ImageIcon(DopplerApplication.class
@@ -140,8 +169,32 @@ public final class DopplerPlayer extends JPanel {
 		add(button_5);
 	}
 
+	private void calculateStep() {
+		step = (int) (stepPercentOfMaximum * stepScaler * slider.getMaximum());
+	}
+
 	public void setValue(double value) {
 		this.value = value;
 		textField.setText(Double.toString(value));
+	}
+
+	private void movePosition(Direction direction) {
+		int value = slider.getValue();
+		if (direction == Direction.FORWARD) {
+			value += step;
+		} else {
+			value -= step;
+		}
+		if (value < 0) {
+			value = 0;
+		} else if (value > slider.getMaximum()) {
+			value = slider.getMaximum();
+		}
+		slider.setValue(value);
+	}
+
+	// TODO
+	private void play() {
+		
 	}
 }

@@ -133,16 +133,16 @@ public class DopplerApplication implements ChangeListener {
 		slider_3.setValue(0);
 		panel.add(slider_3);
 
-		dopplerPlayer = new DopplerPlayer(this, slider);
+		dopplerPlayer = new DopplerPlayer(slider);
 		panel.add(dopplerPlayer);
 
-		dopplerPlayer_1 = new DopplerPlayer(this, slider_1);
+		dopplerPlayer_1 = new DopplerPlayer(slider_1);
 		panel.add(dopplerPlayer_1);
 
-		dopplerPlayer_2 = new DopplerPlayer(this, slider_2);
+		dopplerPlayer_2 = new DopplerPlayer(slider_2);
 		panel.add(dopplerPlayer_2);
 
-		dopplerPlayer_3 = new DopplerPlayer(this, slider_3);
+		dopplerPlayer_3 = new DopplerPlayer(slider_3);
 		panel.add(dopplerPlayer_3);
 
 		dopplerPlayer.setValue(dopplerPanel
