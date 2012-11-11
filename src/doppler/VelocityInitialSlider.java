@@ -8,12 +8,12 @@ public class VelocityInitialSlider extends DopplerSlider {
 	}
 
 	@Override
-	public void setValueFromDouble(double velocityInitial) {
-		setValue(dopplerPanel.getVelocityInitialFromDouble(velocityInitial));
+	public void setMaximum() {
+		setMaximum(dopplerPanel.getVelocityInitialMaxForSlider());
 	}
 
 	@Override
-	public void setMaximum() {
-		setMaximum(dopplerPanel.getVelocityInitialMaxForSlider());
+	public void setValueFromDouble(double velocityInitial) {
+		setValue(dopplerPanel.getVelocityInitialFromDouble(velocityInitial));
 	}
 }

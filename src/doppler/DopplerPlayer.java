@@ -15,35 +15,32 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 public final class DopplerPlayer extends JPanel {
-	private static final long serialVersionUID = -8590676196574889728L;
+	private static final NumberFormat numberFormat = NumberFormat
+			.getInstance(new Locale("pl", "PL"));
 
-	private JTextField textField;
+	private static final long serialVersionUID = -8590676196574889728L;
+	private static final long sleepMillis = 100;
+	private static final double stepPercentOfMaximum = 0.02;
+	private static final double stepScaleDown = 0.1;
+	private static final double stepScalerMax = 2.0;
+	private static final double stepScalerMin = 0.1;
+	private static final double stepScaleUp = 0.1;
 	private JButton button;
 	private JButton button_1;
 	private JButton button_2;
 	private JButton button_3;
 	private JButton button_4;
 	private JButton button_5;
-	private DopplerSlider slider;
-	private Thread playerThread;
-
-	public boolean playing = false;
 	public Direction direction = Direction.FORWARD;
+	private Thread playerThread;
+	public boolean playing = false;
 	public PlayType playType = PlayType.RIGHT;
 	public Position position = Position.LEFT_END;
-	private double value;
+	private DopplerSlider slider;
 	private int step;
 	private double stepScaler = 1.0;
-
-	private static final double stepPercentOfMaximum = 0.02;
-	private static final double stepScaleDown = 0.1;
-	private static final double stepScaleUp = 0.1;
-	private static final double stepScalerMin = 0.1;
-	private static final double stepScalerMax = 2.0;
-	private static final long sleepMillis = 100;
-
-	private NumberFormat numberFormat = NumberFormat.getInstance(new Locale(
-			"pl", "PL"));
+	private JTextField textField;
+	private double value;
 
 	public DopplerPlayer(final DopplerSlider slider) {
 		this.slider = slider;
@@ -60,7 +57,6 @@ public final class DopplerPlayer extends JPanel {
 						Number number = numberFormat.parse(text);
 						value = number.doubleValue();
 					} catch (ParseException e1) {
-						;
 					}
 					slider.setValueFromDouble(value);
 				}
@@ -70,6 +66,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button = new JButton("");
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextPosition(Direction.BACKWARD);
 			}
@@ -81,6 +78,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button_1 = new JButton("");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				playing = !playing;
 				if (playing) {
@@ -101,6 +99,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button_2 = new JButton("");
 		button_2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextPosition(Direction.FORWARD);
 			}
@@ -112,6 +111,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button_3 = new JButton("");
 		button_3.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (stepScaler <= 1.0) {
 					stepScaler -= stepScaleDown;
@@ -131,6 +131,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button_4 = new JButton("");
 		button_4.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (stepScaler < 1.0) {
 					stepScaler += stepScaleDown;
@@ -150,6 +151,7 @@ public final class DopplerPlayer extends JPanel {
 
 		button_5 = new JButton("");
 		button_5.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				playType = playType.next();
 				if (playType == PlayType.LEFT) {
@@ -184,11 +186,6 @@ public final class DopplerPlayer extends JPanel {
 		step = (int) (stepPercentOfMaximum * stepScaler * slider.getMaximum());
 	}
 
-	public void setValue(double value) {
-		this.value = value;
-		textField.setText(DopplerExperimentPanel.formatDouble(value));
-	}
-
 	private void nextPosition(Direction direction) {
 		int value = slider.getValue();
 		if (direction == Direction.FORWARD) {
@@ -208,8 +205,13 @@ public final class DopplerPlayer extends JPanel {
 		slider.setValue(value);
 	}
 
+	private void pause() {
+		playerThread.interrupt();
+	}
+
 	private void play() {
 		playerThread = new Thread() {
+			@Override
 			public void run() {
 				while (true) {
 					try {
@@ -242,7 +244,8 @@ public final class DopplerPlayer extends JPanel {
 		playerThread.start();
 	}
 
-	private void pause() {
-		playerThread.interrupt();
+	public void setValue(double value) {
+		this.value = value;
+		textField.setText(DopplerExperimentPanel.formatDouble(value));
 	}
 }

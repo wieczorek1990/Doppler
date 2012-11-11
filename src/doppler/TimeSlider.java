@@ -8,12 +8,12 @@ public class TimeSlider extends DopplerSlider {
 	}
 
 	@Override
-	public void setValueFromDouble(double time) {
-		setValue(dopplerPanel.getTimeFromDouble(time));
+	public void setMaximum() {
+		setMaximum(dopplerPanel.getTimeMaxForSlider());
 	}
 
 	@Override
-	public void setMaximum() {
-		setMaximum(dopplerPanel.getTimeMaxForSlider());
+	public void setValueFromDouble(double time) {
+		setValue(dopplerPanel.getTimeFromDouble(time));
 	}
 }

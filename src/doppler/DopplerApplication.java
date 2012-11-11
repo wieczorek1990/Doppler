@@ -16,28 +16,12 @@ import javax.swing.event.ChangeListener;
 
 public class DopplerApplication implements ChangeListener {
 
-	private JFrame frame;
-	private DopplerExperimentPanel dopplerPanel;
-	private ObserverLocationSlider slider;
-	private FrequencySourceSlider slider_1;
-	private VelocityInitialSlider slider_2;
-	private TimeSlider slider_3;
-
-	private int observerLocation;
-	private int frequencySource;
-	private int time;
-	private int velocityInitial;
-
-	private DopplerPlayer dopplerPlayer;
-	private DopplerPlayer dopplerPlayer_1;
-	private DopplerPlayer dopplerPlayer_2;
-	private DopplerPlayer dopplerPlayer_3;
-
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					DopplerApplication window = new DopplerApplication();
@@ -49,6 +33,21 @@ public class DopplerApplication implements ChangeListener {
 			}
 		});
 	}
+
+	private DopplerExperimentPanel dopplerPanel;
+	private DopplerPlayer dopplerPlayer;
+	private DopplerPlayer dopplerPlayer_1;
+	private DopplerPlayer dopplerPlayer_2;
+	private DopplerPlayer dopplerPlayer_3;
+	private JFrame frame;
+	private int frequencySource;
+	private int observerLocation;
+	private ObserverLocationSlider slider;
+	private FrequencySourceSlider slider_1;
+	private VelocityInitialSlider slider_2;
+	private TimeSlider slider_3;
+	private int time;
+	private int velocityInitial;
 
 	/**
 	 * Create the application.
@@ -71,7 +70,11 @@ public class DopplerApplication implements ChangeListener {
 		frame.addComponentListener(new ComponentListener() {
 
 			@Override
-			public void componentShown(ComponentEvent e) {
+			public void componentHidden(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
 			}
 
 			@Override
@@ -80,11 +83,7 @@ public class DopplerApplication implements ChangeListener {
 			}
 
 			@Override
-			public void componentMoved(ComponentEvent e) {
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
+			public void componentShown(ComponentEvent e) {
 			}
 		});
 
@@ -153,7 +152,7 @@ public class DopplerApplication implements ChangeListener {
 				.getVelocityInitialFromSlider(velocityInitial));
 		dopplerPlayer_3.setValue(dopplerPanel.getTimeFromSlider(time));
 
-		frame.getContentPane().add((JPanel) dopplerPanel, BorderLayout.CENTER);
+		frame.getContentPane().add(dopplerPanel, BorderLayout.CENTER);
 	}
 
 	@Override
@@ -163,26 +162,26 @@ public class DopplerApplication implements ChangeListener {
 				&& dopplerPlayer != null && dopplerPlayer_1 != null
 				&& dopplerPlayer_2 != null && dopplerPlayer_3 != null) {
 			if (source == slider) {
-				observerLocation = (int) source.getValue();
+				observerLocation = source.getValue();
 				dopplerPanel.setObserverLocationFromSlider(observerLocation);
 				dopplerPanel.repaint();
 				dopplerPlayer.setValue(dopplerPanel
 						.getObserverLocationFromSlider(observerLocation));
 			} else if (source == slider_1) {
-				frequencySource = (int) source.getValue();
+				frequencySource = source.getValue();
 				dopplerPanel.setFrequencySourceFromSlider(frequencySource);
 				dopplerPanel.repaint();
 				dopplerPlayer_1.setValue(dopplerPanel
 						.getFrequencySourceFromSlider(frequencySource));
 			} else if (source == slider_2) {
-				velocityInitial = (int) source.getValue();
+				velocityInitial = source.getValue();
 				dopplerPanel.setVelocityInitialFromSlider(velocityInitial);
 				slider_3.setMaximum();
 				dopplerPanel.repaint();
 				dopplerPlayer_2.setValue(dopplerPanel
 						.getVelocityInitialFromSlider(velocityInitial));
 			} else if (source == slider_3) {
-				time = (int) source.getValue();
+				time = source.getValue();
 				dopplerPanel.setTimeFromSlider(time);
 				dopplerPanel.repaint();
 				dopplerPlayer_3.setValue(dopplerPanel.getTimeFromSlider(time));

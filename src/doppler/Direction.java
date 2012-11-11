@@ -1,7 +1,7 @@
 package doppler;
 
 public enum Direction {
-	FORWARD, BACKWARD;
+	BACKWARD, FORWARD;
 	Direction next() {
 		return values()[(ordinal() + 1) % values().length];
 	}
