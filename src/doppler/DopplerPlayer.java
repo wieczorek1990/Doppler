@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,16 +27,20 @@ public final class DopplerPlayer extends JPanel {
 	private DopplerSlider slider;
 
 	public boolean playing = false;
+	public Direction direction = Direction.FORWARD;
 	public PlayType playType = PlayType.RIGHT;
-
 	private double value;
 	private int step;
 	private double stepScaler = 1.0;
+
 	private static final double stepPercentOfMaximum = 0.1;
-	private static final double stepScaleDown = 0.05;
+	private static final double stepScaleDown = 0.1;
 	private static final double stepScaleUp = 0.1;
 	private static final double stepScalerMin = 0.1;
 	private static final double stepScalerMax = 2.0;
+
+	private NumberFormat numberFormat = NumberFormat.getInstance(new Locale(
+			"pl", "PL"));
 
 	public DopplerPlayer(final DopplerSlider slider) {
 		this.slider = slider;
@@ -46,8 +53,10 @@ public final class DopplerPlayer extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					try {
-						value = Double.parseDouble(textField.getText());
-					} catch (NumberFormatException ex) {
+						String text = textField.getText();
+						Number number = numberFormat.parse(text);
+						value = number.doubleValue();
+					} catch (ParseException e1) {
 						;
 					}
 					slider.setValueFromDouble(value);
@@ -108,9 +117,7 @@ public final class DopplerPlayer extends JPanel {
 				if (stepScaler < stepScalerMin) {
 					stepScaler = stepScalerMin;
 				}
-				// System.out.println(stepScaler);
 				calculateStep();
-				// System.out.println(step);
 			}
 		});
 		button_3.setIcon(new ImageIcon(DopplerApplication.class
@@ -129,9 +136,7 @@ public final class DopplerPlayer extends JPanel {
 				if (stepScaler > stepScalerMax) {
 					stepScaler = stepScalerMax;
 				}
-				// System.out.println(stepScaler);
 				calculateStep();
-				// System.out.println(step);
 			}
 		});
 		button_4.setIcon(new ImageIcon(DopplerApplication.class
@@ -175,7 +180,7 @@ public final class DopplerPlayer extends JPanel {
 
 	public void setValue(double value) {
 		this.value = value;
-		textField.setText(Double.toString(value));
+		textField.setText(DopplerExperimentPanel.formatDouble(value));
 	}
 
 	private void movePosition(Direction direction) {
@@ -195,6 +200,6 @@ public final class DopplerPlayer extends JPanel {
 
 	// TODO
 	private void play() {
-		
+
 	}
 }

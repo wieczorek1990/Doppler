@@ -6,6 +6,10 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,7 +21,7 @@ import javax.swing.event.ChangeListener;
 public class DopplerApplication implements ChangeListener {
 
 	private JFrame frame;
-	private DopplerPanel dopplerPanel;
+	private DopplerExperimentPanel dopplerPanel;
 	private ObserverLocationSlider slider;
 	private FrequencySourceSlider slider_1;
 	private VelocityInitialSlider slider_2;
@@ -61,7 +65,7 @@ public class DopplerApplication implements ChangeListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		dopplerPanel = new DopplerPanel();
+		dopplerPanel = new DopplerExperimentPanel();
 
 		frame = new JFrame();
 		frame.setMinimumSize(new Dimension(800, 0));

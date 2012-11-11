@@ -14,7 +14,7 @@ import java.text.AttributedString;
 
 import javax.swing.JPanel;
 
-public class DopplerPanel extends JPanel {
+public class DopplerExperimentPanel extends JPanel {
 	private static final BasicStroke dashed = new BasicStroke(2.0f,
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f,
 			new float[] { 10.0f }, 0.0f);
@@ -67,7 +67,7 @@ public class DopplerPanel extends JPanel {
 	private double velocityInitialMin = 10.0;
 	private double velocitySoundWave;
 
-	public DopplerPanel() {
+	public DopplerExperimentPanel() {
 		super();
 		this.velocityInitial = velocityInitialMin;
 		this.observerLocation = observerLocationMin;
@@ -232,7 +232,7 @@ public class DopplerPanel extends JPanel {
 		g2d.draw(vehiculeToDraw);
 	}
 
-	private String formatDouble(double val) {
+	public static String formatDouble(double val) {
 		return String.format("%1$,.1f", val);
 	}
 

@@ -3,7 +3,7 @@ package doppler;
 public class TimeSlider extends DopplerSlider {
 	private static final long serialVersionUID = 6895781184605335948L;
 
-	public TimeSlider(DopplerPanel dopplerPanel) {
+	public TimeSlider(DopplerExperimentPanel dopplerPanel) {
 		super(dopplerPanel);
 	}
 
