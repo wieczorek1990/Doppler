@@ -92,7 +92,8 @@ public class DopplerApplication implements ChangeListener {
 
 		panel.setLayout(new GridLayout(0, 4, 0, 0));
 
-		JLabel lblLokalizacjaObserwatora = new JLabel("Lokalizacja obserwatora [m]");
+		JLabel lblLokalizacjaObserwatora = new JLabel(
+				"Lokalizacja obserwatora [m]");
 		panel.add(lblLokalizacjaObserwatora);
 
 		JLabel lblCzstotliworda = new JLabel("Częstotliwość źródła [Hz]");
