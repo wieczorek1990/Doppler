@@ -63,8 +63,8 @@ public class DopplerApplication implements ChangeListener {
 		dopplerPanel = new DopplerExperimentPanel();
 
 		frame = new JFrame();
-		frame.setMinimumSize(new Dimension(800, 0));
-		frame.setBounds(100, 100, 800, 600);
+		frame.setMinimumSize(new Dimension(850, 0));
+		frame.setBounds(100, 100, 850, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		frame.addComponentListener(new ComponentListener() {
@@ -92,16 +92,16 @@ public class DopplerApplication implements ChangeListener {
 
 		panel.setLayout(new GridLayout(0, 4, 0, 0));
 
-		JLabel lblLokalizacjaObserwatora = new JLabel("Lokalizacja obserwatora");
+		JLabel lblLokalizacjaObserwatora = new JLabel("Lokalizacja obserwatora [m]");
 		panel.add(lblLokalizacjaObserwatora);
 
-		JLabel lblCzstotliworda = new JLabel("Częstotliwość źródła");
+		JLabel lblCzstotliworda = new JLabel("Częstotliwość źródła [Hz]");
 		panel.add(lblCzstotliworda);
 
-		JLabel lblPrdkoPocztkowa = new JLabel("Prędkość początkowa");
+		JLabel lblPrdkoPocztkowa = new JLabel("Prędkość początkowa [m/s]");
 		panel.add(lblPrdkoPocztkowa);
 
-		JLabel lblCzas = new JLabel("Czas");
+		JLabel lblCzas = new JLabel("Czas [s]");
 		panel.add(lblCzas);
 
 		slider = new ObserverLocationSlider(dopplerPanel);

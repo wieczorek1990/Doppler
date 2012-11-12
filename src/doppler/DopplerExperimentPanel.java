@@ -15,18 +15,19 @@ import java.text.AttributedString;
 import javax.swing.JPanel;
 
 public class DopplerExperimentPanel extends JPanel {
+	private static final int circleSkipCount = 100;
 	private static final BasicStroke dashed = new BasicStroke(2.0f,
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f,
 			new float[] { 10.0f }, 0.0f);
 	private static final int decimalDigits = 3;
-	private static final String frequencyObserverDescription = "Częstotliwość słyszalna";
-	private static final String frequencySourceDescription = "Częstotliwość emisji";
+	private static final String frequencyObserverDescriptionFormat = "Częstotliwość słyszalna = %s Hz";
+	private static final String frequencySourceDescriptionFormat = "Częstotliwość emisji = %s Hz";
 	private static final double frequencySourceMax = 1250.0;
 	private static final double frequencySourceMin = 200.0;
 	private static final Color green = new Color(60, 140, 40);
 	private static final int legendPaddingX = 15;
-	private static final String observedFrequencyDescription = "Częstotliwość obserwowana";
-	private static final String observerAngleDescription = "\u03B8";
+	private static final String observedFrequencyDescriptionFormat = "Częstotliwość obserwowana [f(t)]";
+	private static final String observerAngleDescriptionFormat = "\u03B8 = %s\u00B0";
 	private static final double observerLocationMax = 40.0;
 	private static final double observerLocationMin = 1.0;
 	private static final double percentSurrounding = 0.35;
@@ -36,24 +37,23 @@ public class DopplerExperimentPanel extends JPanel {
 	private static final double scaleObjects = 0.8;
 	private static final double scalePlot = 0.75;
 	private static final double scaleScenePlot = 0.4;
-
 	private static final int sceneLegendTextPaddingX = 25;
-
 	private static final long serialVersionUID = 1891140777059740472L;
 	private static final double temperature = 25.0;
 	private static final double timeMin = 0;
 	private static final Polygon vehicule = new Polygon(new int[] { 0, 2, 3, 2,
 			0 }, new int[] { -1, -1, 0, 1, 1 }, 5);
-	private static final String velocityDescription = "\u03BD";
+	private static final String velocityDescriptionFormat = "\u03BD = %s m/s";
 	private static final double velocityInitialMax = 50.0;
 	private static final double velocityInitialMin = 10.0;
-	private static final AttributedString velocityRelativeDescription = new AttributedString(
-			"\u03BDr");
-	private static final String xPositionDescription = "\u03C7";
+	private static final String velocityRelativeDescriptionFormat = "\u03BDr = %s m/s";
+	private static final String xPositionDescriptionFormat = "\u03C7 = %s m";
 	private static final Color yellow = new Color(225, 180, 45);
+
 	public static String formatDouble(double val) {
 		return String.format("%1$,.1f", val);
 	}
+
 	private double[] frequencyObservedPoints;
 	private double frequencySource;
 	private int legendHeight;
@@ -81,8 +81,6 @@ public class DopplerExperimentPanel extends JPanel {
 		this.timeMax = roadDistance / this.velocityInitial;
 		this.velocitySoundWave = 332.0 * (1.0 + Math
 				.sqrt((temperature / 273.0)));
-		velocityRelativeDescription.addAttribute(TextAttribute.SUPERSCRIPT,
-				TextAttribute.SUPERSCRIPT_SUB, 1, 2);
 	}
 
 	public int convertDoubleToSlider(double value, double inMin, double inMax,
@@ -110,44 +108,45 @@ public class DopplerExperimentPanel extends JPanel {
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
 
-	// TODO rysowanie okręgów
-	// zakomentowane zabija procesor :)
 	private void drawCircles(Graphics2D g2d) {
 		g2d.setStroke(dashed);
 		g2d.setColor(purple);
 
-		// double period = 1.0 / frequencySource;
-		// for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent +=
-		// period) {
-		// int x = getVehiculeCenterX();
-		// int y = getRoadY();
-		// double radius = velocitySoundWave * (time - timeCurrent);
-		// Ellipse2D circle = getCricle(x, y, radius);
-		// g2d.draw(circle);
-		// }
+		double period = 1.0 / frequencySource;
+		for (double timeCurrent = 0.0; timeCurrent < time; timeCurrent += period
+				* circleSkipCount) {
+			int x = getVehiculeCenterX();
+			int y = getRoadY();
+			double radius = velocitySoundWave * (time - timeCurrent);
+			Ellipse2D circle = getCricle(x, y, radius);
+			g2d.draw(circle);
+		}
 	}
 
 	private void drawLegend(Graphics2D g2d) {
 		int legendPaddingY = g2d.getFontMetrics().getHeight();
 		g2d.setColor(Color.black);
-		g2d.drawString(frequencySourceDescription + " = " + frequencySource,
-				legendPaddingX, legendPaddingY);
-		g2d.drawString(frequencyObserverDescription + " = "
-				+ formatDouble(getFrequencyObserver()), legendPaddingX
+		g2d.drawString(String.format(frequencySourceDescriptionFormat,
+				formatDouble(frequencySource)), legendPaddingX, legendPaddingY);
+		g2d.drawString(String.format(frequencyObserverDescriptionFormat,
+				formatDouble(getFrequencyObserver())), legendPaddingX
 				+ getWidth() / 2, legendPaddingY);
-		g2d.drawString(xPositionDescription + " = "
-				+ formatDouble(getXPosition()), legendPaddingX,
+		g2d.drawString(String.format(xPositionDescriptionFormat,
+				formatDouble(getXPosition())), legendPaddingX,
 				legendPaddingY * 2);
-		g2d.drawString(velocityDescription + " = "
-				+ formatDouble(velocityInitial), legendPaddingX + getWidth()
-				/ 2, legendPaddingY * 2);
-		g2d.drawString(observerAngleDescription + " = "
-				+ formatDouble(getObserverAngle()), legendPaddingX,
+		g2d.drawString(String.format(velocityDescriptionFormat,
+				formatDouble(velocityInitial)),
+				legendPaddingX + getWidth() / 2, legendPaddingY * 2);
+		g2d.drawString(String.format(observerAngleDescriptionFormat,
+				formatDouble(getObserverAngle())), legendPaddingX,
 				legendPaddingY * 3);
-		g2d.drawString(velocityRelativeDescription.getIterator(),
-				legendPaddingX + getWidth() / 2, legendPaddingY * 3);
-		g2d.drawString(" = " + formatDouble(getVelocityRelative()),
-				legendPaddingX + getWidth() / 2 + 6, legendPaddingY * 3);
+		AttributedString as = new AttributedString(String.format(
+				velocityRelativeDescriptionFormat,
+				formatDouble(getVelocityRelative())));
+		as.addAttribute(TextAttribute.SUPERSCRIPT,
+				TextAttribute.SUPERSCRIPT_SUB, 1, 2);
+		g2d.drawString(as.getIterator(), legendPaddingX + getWidth() / 2,
+				legendPaddingY * 3);
 	}
 
 	private void drawObserver(Graphics2D g2d) {
@@ -204,9 +203,9 @@ public class DopplerExperimentPanel extends JPanel {
 		g2d.setColor(Color.black);
 		g2d.setStroke(new BasicStroke());
 		g2d.drawString(
-				observedFrequencyDescription,
+				observedFrequencyDescriptionFormat,
 				(getWidth() - g2d.getFontMetrics().stringWidth(
-						observedFrequencyDescription)) / 2, g2d
+						observedFrequencyDescriptionFormat)) / 2, g2d
 						.getFontMetrics().getHeight());
 	}
 
