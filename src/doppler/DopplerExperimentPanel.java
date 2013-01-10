@@ -2,6 +2,7 @@ package doppler;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -26,7 +27,7 @@ public class DopplerExperimentPanel extends JPanel {
 	private static final double frequencySourceMin = 200.0;
 	private static final Color green = new Color(60, 140, 40);
 	private static final int legendPaddingX = 15;
-	private static final String observedFrequencyDescriptionFormat = "Częstotliwość obserwowana [f(t)]";
+	private static final String observedFrequencyDescriptionFormat = "Częstotliwość obserwowana";
 	private static final String observerAngleDescriptionFormat = "\u03B8 = %s\u00B0";
 	private static final double observerLocationMax = 40.0;
 	private static final double observerLocationMin = 1.0;
@@ -48,6 +49,8 @@ public class DopplerExperimentPanel extends JPanel {
 	private static final double velocityInitialMin = 10.0;
 	private static final String velocityRelativeDescriptionFormat = "\u03BDr = %s m/s";
 	private static final String xPositionDescriptionFormat = "\u03C7 = %s m";
+	private static final String plotXAxisDescription = "t [s]";
+	private static final String plotYAxisDescription = "f [Hz]";
 	private static final Color yellow = new Color(225, 180, 45);
 
 	public static String formatDouble(double val) {
@@ -71,6 +74,8 @@ public class DopplerExperimentPanel extends JPanel {
 	private int timePointsCount;
 	private double velocityInitial;
 	private double velocitySoundWave;
+	private int plotXAxisDescriptionXPadding = 5;
+	private int plotYAxisDescriptionXPadding = 5;
 
 	public DopplerExperimentPanel() {
 		super();
@@ -192,11 +197,22 @@ public class DopplerExperimentPanel extends JPanel {
 		g2d.setStroke(new BasicStroke(2));
 		int timeCurrent = convertTimeForPlot(time);
 		g2d.drawLine(timeCurrent, 0, timeCurrent, plotHeight);
-		/*
-		 * // Plot axes g2d.setColor(Color.black); g2d.drawLine(0, 0, 0,
-		 * plotHeight); g2d.drawLine(0, plotHeight / 2, getWidth(), plotHeight /
-		 * 2);
-		 */
+
+		g2d.setColor(Color.red);
+		g2d.setStroke(new BasicStroke());
+		g2d.drawLine(0, 0, 0, plotHeight);
+		g2d.drawLine(0, plotHeight / 2, getWidth(), plotHeight / 2);
+		
+		g2d.scale(1, -1);
+		Font font = g2d.getFont();
+		float size = font.getSize2D() * (float)(1.0 / scalePlot);
+		Font newFont = font.deriveFont(size);
+		g2d.setFont(newFont);
+		g2d.setColor(Color.black);
+		g2d.setStroke(new BasicStroke());
+		g2d.drawString(plotXAxisDescription, getWidth() + plotXAxisDescriptionXPadding, -plotHeight / 2);
+		g2d.drawString(plotYAxisDescription, plotYAxisDescriptionXPadding, -plotHeight);
+
 	}
 
 	private void drawPlotLegend(Graphics2D g2d) {
