@@ -50,7 +50,9 @@ public class DopplerExperimentPanel extends JPanel {
 	private static final String velocityRelativeDescriptionFormat = "\u03BDr = %s m/s";
 	private static final String xPositionDescriptionFormat = "\u03C7 = %s m";
 	private static final String plotXAxisDescription = "t [s]";
+	private static final String plotXAxisDescription2 = "czas bieżący";
 	private static final String plotYAxisDescription = "f [Hz]";
+	private static final String plotYAxisDescription2 = "częstotliwość słyszalna";
 	private static final Color yellow = new Color(225, 180, 45);
 
 	public static String formatDouble(double val) {
@@ -76,6 +78,7 @@ public class DopplerExperimentPanel extends JPanel {
 	private double velocitySoundWave;
 	private int plotXAxisDescriptionXPadding = 5;
 	private int plotYAxisDescriptionXPadding = 5;
+	private int plotYAxisDescriptionPadding = 20;
 
 	public DopplerExperimentPanel() {
 		super();
@@ -211,7 +214,9 @@ public class DopplerExperimentPanel extends JPanel {
 		g2d.setColor(Color.black);
 		g2d.setStroke(new BasicStroke());
 		g2d.drawString(plotXAxisDescription, getWidth() + plotXAxisDescriptionXPadding, -plotHeight / 2);
+		g2d.drawString(plotXAxisDescription2, getWidth() + plotXAxisDescriptionXPadding, -plotHeight / 2 + plotYAxisDescriptionPadding);
 		g2d.drawString(plotYAxisDescription, plotYAxisDescriptionXPadding, -plotHeight);
+		g2d.drawString(plotYAxisDescription2, plotYAxisDescriptionXPadding, -plotHeight + plotYAxisDescriptionPadding);
 
 	}
 
